@@ -1,0 +1,121 @@
+/* ===== الأساس (الإعلانات العادية: نفس شكلها القديم) ===== */
+.banner { position: relative; }
+
+.banner__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--color-primary-dark);
+  font-size: 1.3rem;
+  z-index: 2;
+}
+.banner__arrow:hover { background: #fff; }
+.banner__arrow--prev { left: 16px; }
+.banner__arrow--next { right: 16px; }
+
+.banner__dots {
+  position: absolute;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.banner__dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #d9cbe8;
+}
+.banner__dot.is-active { background: var(--color-primary); }
+
+/* ===== إعلان Luxury فقط ===== */
+.banner--special { margin-bottom: 20px; }
+
+.banner__slide {
+  position: relative;
+  height: clamp(260px, 34vw, 460px);   /* ← للتحكم بالارتفاع */
+  overflow: hidden;
+}
+.banner__bg {                          /* نسخة ضبابية تملأ الجوانب */
+  position: absolute;
+  inset: -30px;
+  background-size: cover;
+  background-position: center;
+  filter: blur(24px) brightness(0.92);
+}
+.banner__img {                         /* الصورة كاملة بدون قص */
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;                 /* ← cover لو بدك تملي القسم */
+}
+.banner__card {                        /* بطاقة النص: واضحة على أي صورة */
+  position: absolute;
+  left: max(72px, calc((100% - var(--container-width)) / 2 + 24px));
+  bottom: 48px;
+  max-width: min(440px, calc(100% - 144px));
+  padding: 22px 26px;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 24px rgba(43, 31, 58, 0.18);
+}
+.banner__title {
+  margin: 0 0 8px;
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+  line-height: 1.2;
+  color: var(--color-text);
+}
+.banner__subtitle {
+  margin: 0 0 14px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+.banner__card .btn { margin-top: 6px; }
+
+/* النقاط والأسهم أوضح فوق صورة داكنة */
+.banner--special .banner__dots { bottom: 14px; }
+.banner--special .banner__dot {
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+.banner--special .banner__dot.is-active { background: var(--color-primary); }
+.banner--special .banner__arrow { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); }
+
+/* ===== الموبايل ===== */
+@media (max-width: 768px) {
+  .banner__arrow { display: none; }
+  .banner__dots { bottom: 14px; }
+
+  .banner__slide { height: 240px; }
+  .banner__card {
+    left: 16px;
+    right: 16px;
+    bottom: 36px;
+    max-width: none;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .banner__title { font-size: 1.2rem; margin-bottom: 8px; }
+  .banner__card .btn { padding: 9px 20px; font-size: 0.85rem; }
+}
+/* ===== ارتفاع موحّد لكل الإعلانات ===== */
+.banner { --banner-h: 290px; }               /* ← غيري هاد الرقم لتغيير ارتفاع الكل */
+.banner .hero { height: var(--banner-h); min-height: 0; }
+.banner__slide { height: var(--banner-h); }  /* إعلان Luxury */
+
+@media (max-width: 768px) {
+  .banner { --banner-h: 300px; }
+}

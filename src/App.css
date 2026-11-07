@@ -28,12 +28,12 @@ body {
   color: var(--color-text);
   background: var(--color-bg);
 }
-
+html { scroll-padding-top: 90px; }
 img { max-width: 100%; display: block; }
 a { text-decoration: none; color: inherit; }
 button { font-family: inherit; cursor: pointer; }
 
-.app { overflow-x: hidden; }
+.app { overflow-x: clip; }
 
 /* ===== Shared button (used across pages) ===== */
 .btn {
@@ -60,6 +60,10 @@ button { font-family: inherit; cursor: pointer; }
 
 /* ===== Navbar (Header component) ===== */
 .header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #fff;
   border-bottom: 1px solid #eee5f4;
   padding: 16px 0;
 }
@@ -265,4 +269,10 @@ button { font-family: inherit; cursor: pointer; }
     gap: 28px 16px;
   }
   .footer__brand { grid-column: 1 / -1; }
+
+  
+  .header__inner { gap: 8px; }
+  .header__logo { min-width: 0; }
+  .header__logo-img { max-width: 120px; }   /* كان 260px ويدفع أيقونة السلة خارج الشاشة */
+  .header__icons { flex-shrink: 0; gap: 4px; }
 }

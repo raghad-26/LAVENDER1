@@ -1,34 +1,32 @@
-
-import React, { useState  } from 'react';
-import { Link ,useNavigate  } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import brand from '../../images/brand.jpg';
 import forgotImg from '../../images/forgot-password.jpg';
 import back from '../../images/back.png';
 import SocialButtons from './SocialButtons';
+import { customerForgotPassword, getErrorMessage } from '../../services/api';
 import './Auth.css';
 import './ForgotPassword.css';
 
 /**
  * ForgotPassword
- * يظهر عند الضغط على "Forgot Password" في صفحة Login.
- *
+ * onSubmit الافتراضي = POST /v1/customer/forgot-password
  * @param {function} onSubmit - called with { email }
  * @param {string} loginHref - route to the Login page
  */
-export default function ForgotPassword({ onSubmit = () => {}, loginHref = '/login' }) {
-
+export default function ForgotPassword({ onSubmit = customerForgotPassword, loginHref = '/login' }) {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sent, setSent] = useState(false);
-   const navigate = useNavigate(); 
+  const navigate = useNavigate();
+
   const validate = () => {
     if (!email.trim()) return 'Email is required';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Enter a valid email address';
     return '';
   };
 
-   const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const msg = validate();
     setError(msg);
@@ -37,11 +35,14 @@ export default function ForgotPassword({ onSubmit = () => {}, loginHref = '/logi
     try {
       setIsSubmitting(true);
       await onSubmit({ email });
-      navigate('/verify-code', { state: { email } });     // بدل setSent(true)
+      navigate('/verify-code', { state: { email } });
+    } catch (err) {
+      setError(getErrorMessage(err));
     } finally {
       setIsSubmitting(false);
     }
   };
+
   return (
     <div className="auth-page fp-page">
       <div className="auth-topbar fp-topbar">
@@ -54,7 +55,7 @@ export default function ForgotPassword({ onSubmit = () => {}, loginHref = '/logi
         {/* ===== Left: form ===== */}
         <div className="fp-content">
           <Link to={loginHref} className="fp-back">
-              <img  src={back} alt="Lavender Global" />
+            <img src={back} alt="" />
             Back to login
           </Link>
 
@@ -77,12 +78,6 @@ export default function ForgotPassword({ onSubmit = () => {}, loginHref = '/logi
               />
               {error && <span className="field-error">{error}</span>}
             </div>
-
-            {sent && (
-              <p className="fp-success">
-                If this email is registered, we&apos;ve sent you a link to reset your password.
-              </p>
-            )}
 
             <button type="submit" className="auth-submit" disabled={isSubmitting}>
               {isSubmitting ? 'Sending…' : 'Submit'}

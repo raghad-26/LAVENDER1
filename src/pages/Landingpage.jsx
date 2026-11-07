@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Hero from '../components/Hero';
+import BannerSlider from '../components/BannerSlider';
 import Categories from '../components/Categories';
 import ProductsSection from '../components/ProductsSection';
 import SpecialOffer from '../components/Specialoffer';
 import Features from '../components/Features';
-import { getCategories } from '../services/dataService';
+import Loader from '../components/Loader';
+import ErrorMessage from '../components/ErrorMessage';
+import { fetchCategories, fetchBanners, getErrorMessage } from '../services/api';
 import './Landingpage.css';
 
 const FEATURE_ITEMS = [
@@ -16,15 +19,39 @@ const FEATURE_ITEMS = [
 
 export default function LandingPage() {
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [banners, setBanners] = useState([]);
+  const [attempt, setAttempt] = useState(0);
+
+  const retry = useCallback(() => setAttempt((n) => n + 1), []);
 
   useEffect(() => {
-    getCategories().then(setCategories);
-  }, []);
+    let cancelled = false;
+    setLoading(true);
+    setError('');
+
+    fetchCategories()
+      .then((data) => !cancelled && setCategories(data))
+      .catch((err) => !cancelled && setError(getErrorMessage(err)))
+      .finally(() => !cancelled && setLoading(false));
+
+    // الإعلانات اختيارية: لو فشلت أو كانت فارغة نرجع للـ Hero الثابت
+    fetchBanners()
+      .then((data) => !cancelled && setBanners(data))
+      .catch(() => !cancelled && setBanners([]));
+
+    return () => { cancelled = true; };
+  }, [attempt]);
 
   return (
     <>
-      <Hero />
-      <Categories items={categories} />
+      {banners.length > 0 ? <BannerSlider banners={banners} /> : <Hero />}
+
+      {loading && <Loader text="Loading categories..." />}
+      {error && <ErrorMessage message={error} onRetry={retry} />}
+      {!loading && !error && <Categories items={categories} />}
+
       <ProductsSection categories={categories} />
       <SpecialOffer />
       <Features items={FEATURE_ITEMS} />

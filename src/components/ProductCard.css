@@ -47,3 +47,23 @@
   justify-content: center;
   padding: 11px 20px;
 }
+.product-card__media { position: relative; }
+.product-card__badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.product-card__old {
+  margin-left: 8px;
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}

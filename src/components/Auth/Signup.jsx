@@ -2,18 +2,17 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import brand from '../../images/brand.jpg';
 import SocialButtons from './SocialButtons';
+import { customerRegister, getErrorMessage } from '../../services/api';
 import './Auth.css';
 
 /**
  * Signup
- * Shown when the account icon is clicked and no
- * "lavender_isRegistered" flag exists yet in localStorage
- * (i.e. the visitor has never logged in before — see Header.jsx).
- *
- * @param {function} onSubmit - called with the form values on success
+ * onSubmit الافتراضي = POST /v1/customer/register
+ * (علامة lavender_isRegistered تُحفظ داخل customerRegister عند النجاح)
+ * @param {function} onSubmit - called with the form values
  * @param {string} loginHref - route to the Login page
  */
-export default function Signup({ onSubmit = () => {}, loginHref = '/login' }) {
+export default function Signup({ onSubmit = customerRegister, loginHref = '/login' }) {
   const navigate = useNavigate();
   const [values, setValues] = useState({
     firstName: '',
@@ -50,10 +49,9 @@ export default function Signup({ onSubmit = () => {}, loginHref = '/login' }) {
     try {
       setIsSubmitting(true);
       await onSubmit(values);
-      // Mark this browser as "registered" so the account icon
-      // sends them to Login next time instead of Sign up.
-      localStorage.setItem('lavender_isRegistered', 'true');
       navigate('/login');
+    } catch (err) {
+      setErrors({ form: getErrorMessage(err) });
     } finally {
       setIsSubmitting(false);
     }
@@ -161,6 +159,7 @@ export default function Signup({ onSubmit = () => {}, loginHref = '/login' }) {
             </label>
           </div>
           {errors.agreed && <span className="field-error">{errors.agreed}</span>}
+          {errors.form && <span className="field-error">{errors.form}</span>}
 
           <button type="submit" className="auth-submit" disabled={isSubmitting}>
             {isSubmitting ? 'Creating account…' : 'Create account'}

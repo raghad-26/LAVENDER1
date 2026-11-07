@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import brand from '../../images/brand.jpg';
 import back from '../../images/back.png';
-import verifyImg from '../../images/verify-code.jpg'; // ← ضع صورتك هنا بهذا الاسم
+import verifyImg from '../../images/verify-code.jpg';
+import { customerForgotPassword, getErrorMessage } from '../../services/api';
 import './Auth.css';
 import './ForgotPassword.css'; // نعيد استخدام تخطيط الصفحة (fp-*)
 import './VerifyCode.css';
@@ -11,16 +12,17 @@ const RESEND_SECONDS = 30;
 
 /**
  * VerifyCode
- * تظهر بعد الضغط على Submit في صفحة Forgot Password.
- * البريد يصلها عبر navigate('/verify-code', { state: { email } }).
+ * الـ API ما فيه Endpoint مستقل للتحقق من الكود؛ التحقق الفعلي يحصل عند
+ * reset-password في الصفحة التالية. لذلك onVerify الافتراضي لا يفعل شيئاً
+ * وننتقل مباشرة لصفحة Set password مع الكود.
+ * الإعادة (Resend) = إعادة استدعاء forgot-password.
  *
  * @param {function} onVerify - called with { email, code }
  * @param {function} onResend - called with { email }
- * @param {string} loginHref - route to the Login page
  */
 export default function VerifyCode({
-  onVerify = () => {},
-  onResend = () => {},
+  onVerify = async () => {},
+  onResend = customerForgotPassword,
   loginHref = '/login',
 }) {
   const location = useLocation();
@@ -42,8 +44,13 @@ export default function VerifyCode({
 
   const handleResend = async () => {
     if (secondsLeft > 0) return;
-    await onResend({ email });
-    setSecondsLeft(RESEND_SECONDS);
+    try {
+      setError('');
+      await onResend({ email });
+      setSecondsLeft(RESEND_SECONDS);
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -54,13 +61,15 @@ export default function VerifyCode({
     }
     setError('');
 
-          try {
-        setIsSubmitting(true);
-        await onVerify({ email, code: code.trim() });
-        navigate('/set-password', { state: { email, code: code.trim() } });
-      } finally {
-        setIsSubmitting(false);
-      }
+    try {
+      setIsSubmitting(true);
+      await onVerify({ email, code: code.trim() });
+      navigate('/set-password', { state: { email, code: code.trim() } });
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

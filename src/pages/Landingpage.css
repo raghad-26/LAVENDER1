@@ -19,7 +19,7 @@
   background-repeat: no-repeat;
   margin-bottom: 20px;
  padding-left: 180px  ;
- /* min-height: 500px;*/
+  min-height: 300px;
 }
 .hero__text { flex: 1; }
 .hero__eyebrow {
@@ -85,13 +85,11 @@
 .category-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 24px rgba(43, 31, 58, 0.14);
-  /* ألوان خلفية كروت الأقسام (بدل الـ inline style) */
+}
 .category-card--women { --card-bg: #eadcf5; }
 .category-card--men { --card-bg: #f3e6d3; }
 .category-card--luxury { --card-bg: #e6d2d9; }
 .category-card--best-sellers { --card-bg: #f1e5d5; }
-}
-
 
 .category-card__body h3 {
   margin: 0 0 6px;
@@ -219,6 +217,7 @@
     padding: 24px 16px 40px;
     gap: 24px;
     text-align: center;
+     min-height: 360px; 
   }
   .hero__subtitle { margin-left: auto; margin-right: auto; }
   .hero__title { font-size: 2rem; }

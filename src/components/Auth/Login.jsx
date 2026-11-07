@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import brand from '../../images/brand.jpg';
 import SocialButtons from './SocialButtons';
+import { customerLogin, getErrorMessage } from '../../services/api';
 import './Auth.css';
 
 /**
  * Login
- * Shown when the account icon is clicked and the visitor has
- * already registered before (a "lavender_isRegistered" flag exists
- * in localStorage — see Header.jsx and Signup.jsx).
- *
- * @param {function} onSubmit - called with { email, password }
+ * onSubmit الافتراضي = POST /v1/customer/login
+ * @param {function} onSubmit - called with { email, password, remember }
  * @param {string} signupHref - route to the Sign up page
  */
-export default function Login({ onSubmit = () => {}, signupHref = '/signup' }) {
+export default function Login({ onSubmit = customerLogin, signupHref = '/signup' }) {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,7 +36,10 @@ export default function Login({ onSubmit = () => {}, signupHref = '/signup' }) {
 
     try {
       setIsSubmitting(true);
-      await onSubmit({ email, password });
+      await onSubmit({ email, password, remember });
+      navigate('/');
+    } catch (err) {
+      setErrors({ form: getErrorMessage(err) });
     } finally {
       setIsSubmitting(false);
     }
@@ -95,11 +98,18 @@ export default function Login({ onSubmit = () => {}, signupHref = '/signup' }) {
 
           <div className="auth-checkbox-row">
             <label className="auth-checkbox">
-              <input type="checkbox" name="remember" />
+              <input
+                type="checkbox"
+                name="remember"
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}
+              />
               <span>Remember me</span>
             </label>
             <Link to="/forgot-password" className="auth-link">Forgot Password</Link>
           </div>
+
+          {errors.form && <span className="field-error">{errors.form}</span>}
 
           <button type="submit" className="auth-submit" disabled={isSubmitting}>
             {isSubmitting ? 'Logging in…' : 'Login'}

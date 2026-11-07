@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import brand from '../../images/brand.jpg';
 import back from '../../images/back.png';
-import setPasswordImg from '../../images/forgot-password.jpg'; // ← ضع صورتك من سطح المكتب هنا بهذا الاسم
+import setPasswordImg from '../../images/forgot-password.jpg';
+import { customerResetPassword, getErrorMessage } from '../../services/api';
 import './Auth.css';
-import './ForgotPassword.css'; // نعيد استخدام تخطيط الصفحة (fp-*)
+import './ForgotPassword.css';
 import './VerifyCode.css';
 import './SetPassword.css';
 
@@ -12,14 +13,12 @@ const MIN_LENGTH = 8;
 
 /**
  * SetPassword
- * تظهر بعد نجاح التحقق من الكود في صفحة Verify Code.
- * البريد والكود يصلانها عبر navigate('/set-password', { state: { email, code } }).
- *
+ * onSetPassword الافتراضي = POST /v1/customer/reset-password
+ * (البريد والكود يصلان عبر navigate state من صفحة Verify Code)
  * @param {function} onSetPassword - called with { email, code, password }
- * @param {string} loginHref - route to the Login page
  */
 export default function SetPassword({
-  onSetPassword = () => {},
+  onSetPassword = customerResetPassword,
   loginHref = '/login',
 }) {
   const location = useLocation();
@@ -59,6 +58,8 @@ export default function SetPassword({
       setIsSubmitting(true);
       await onSetPassword({ email, code, password });
       navigate(loginHref); // بعد تعيين كلمة المرور ارجع لصفحة تسجيل الدخول
+    } catch (err) {
+      setErrors({ form: getErrorMessage(err) });
     } finally {
       setIsSubmitting(false);
     }
@@ -87,7 +88,6 @@ export default function SetPassword({
           </p>
 
           <form className="auth-form sp-form" onSubmit={handleSubmit} noValidate>
-            {/* Create password */}
             <div className="form-field">
               <label htmlFor="sp-password">Create Password</label>
               <div className="password-wrapper">
@@ -114,7 +114,6 @@ export default function SetPassword({
               )}
             </div>
 
-            {/* Re-enter password */}
             <div className="form-field">
               <label htmlFor="sp-confirm">Re-enter Password</label>
               <div className="password-wrapper">
@@ -140,6 +139,8 @@ export default function SetPassword({
                 <span className="field-error">{errors.confirm}</span>
               )}
             </div>
+
+            {errors.form && <span className="field-error">{errors.form}</span>}
 
             <button type="submit" className="auth-submit" disabled={isSubmitting}>
               {isSubmitting ? 'Saving…' : 'Set password'}
